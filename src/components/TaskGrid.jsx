@@ -68,7 +68,7 @@ const TaskGrid = ({
           <motion.div
             animate={{ scale: [1, 1.1, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
-            className={`absolute inset-0 ${isDark ? 'bg-blue-500/30' : 'bg-blue-400/20'} blur-3xl rounded-full opacity-50`}
+            className={`absolute inset-0 ${isDark ? 'bg-blue-500/30' : 'bg-blue-400/20'} blur-3xl rounded-2xl opacity-50`}
           ></motion.div>
           <motion.div
             animate={{ y: [0, -10, 0] }}

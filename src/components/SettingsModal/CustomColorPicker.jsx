@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 
 const CustomColorPicker = ({ customColor, onColorChange, selectedColor, onSelectCustom }) => {
   return (
-    <div className="col-span-4 mt-4 p-3 bg-black/30 rounded-xl border border-white/10">
+    <div className="col-span-4 mt-4 p-3 bg-black/30 rounded-3xl border border-white/10">
       <div className="flex items-center justify-between">
         <label className="text-sm text-zinc-300">Custom Color</label>
         <div className="flex items-center gap-3">
@@ -16,7 +16,7 @@ const CustomColorPicker = ({ customColor, onColorChange, selectedColor, onSelect
             type="color"
             value={customColor}
             onChange={(e) => onColorChange(e.target.value)}
-            className="w-10 h-10 rounded-lg border-2 border-white/20 cursor-pointer"
+            className="w-10 h-10 rounded-2xl border-2 border-white/20 cursor-pointer"
             aria-label="Choose custom color"
             title="Choose a custom color"
           />

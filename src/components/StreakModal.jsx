@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Skull, Target } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 const translations = {
   en: {
@@ -73,6 +74,7 @@ const translations = {
 
 const StreakModal = ({ isOpen, onClose, streak, displayName, streakRecoveryAvailable, language }) => {
   const [view, setView] = useState('status'); // 'status' or 'levels'
+  const { isDark } = useTheme();
 
   const getCurrentLevel = (streak, language) => {
     const t = translations[language];
@@ -114,14 +116,18 @@ const StreakModal = ({ isOpen, onClose, streak, displayName, streakRecoveryAvail
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          className={`fixed inset-0 backdrop-blur-sm flex items-center justify-center p-4 z-50 ${isDark ? 'bg-black/70' : 'bg-black/30'}`}
           onClick={onClose}
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-black/80 backdrop-blur-xl rounded-3xl p-8 w-full max-w-2xl text-white border border-white/10"
+            className={`backdrop-blur-xl rounded-3xl p-8 w-full max-w-2xl border ${
+              isDark
+                ? 'bg-black/80 text-white border-white/10'
+                : 'bg-white/85 text-slate-900 border-slate-200'
+            }`}
             style={{ boxShadow: '0 0 50px -10px rgb(var(--accent-main) / 0.4)' }}
             dir={language === 'ar' ? 'rtl' : 'ltr'}
             onClick={(e) => e.stopPropagation()}
@@ -129,23 +135,38 @@ const StreakModal = ({ isOpen, onClose, streak, displayName, streakRecoveryAvail
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-3xl font-bold">{translations[language].streakHub}</h2>
-              <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
+              <button
+                onClick={onClose}
+                className={`p-2 rounded-3xl transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-slate-200/70'}`}
+              >
                 <X size={24} />
               </button>
             </div>
 
             {/* Tabs */}
-            <div className="flex space-x-1 mb-6 bg-white/5 rounded-xl p-1">
+            <div className={`flex space-x-1 mb-6 rounded-3xl p-1 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
               <button
                 onClick={() => setView('status')}
-                className={`flex-1 py-2 px-4 rounded-lg transition-colors ${view === 'status' ? 'text-white' : 'text-gray-300 hover:text-white'}`}
+                className={`flex-1 py-2 px-4 rounded-2xl transition-colors ${
+                  view === 'status'
+                    ? 'text-white'
+                    : isDark
+                      ? 'text-gray-300 hover:text-white'
+                      : 'text-slate-600 hover:text-slate-900'
+                }`}
                 style={view === 'status' ? { backgroundColor: 'rgb(var(--accent-main))' } : {}}
               >
 {translations[language].status}
               </button>
               <button
                 onClick={() => setView('levels')}
-                className={`flex-1 py-2 px-4 rounded-lg transition-colors ${view === 'levels' ? 'text-white' : 'text-gray-300 hover:text-white'}`}
+                className={`flex-1 py-2 px-4 rounded-2xl transition-colors ${
+                  view === 'levels'
+                    ? 'text-white'
+                    : isDark
+                      ? 'text-gray-300 hover:text-white'
+                      : 'text-slate-600 hover:text-slate-900'
+                }`}
                 style={view === 'levels' ? { backgroundColor: 'rgb(var(--accent-main))' } : {}}
               >
 {translations[language].levels}
@@ -166,30 +187,35 @@ const StreakModal = ({ isOpen, onClose, streak, displayName, streakRecoveryAvail
                   <div className="text-center">
                     <div className={`text-8xl mb-4 ${currentLevel.color}`}>{currentLevel.icon}</div>
                     <h3 className="text-4xl font-bold mb-2">{streak} {translations[language].daysLabel}</h3>
-                    <p className="text-xl text-gray-300" dangerouslySetInnerHTML={{ __html: translations[language].statusGreetings[currentLevel.level - 1].replace('{name}', `<span class="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-500 font-bold animate-pulse">${displayName}</span>`) }} />
+                    <p
+                      className={`text-xl ${isDark ? 'text-gray-300' : 'text-slate-600'}`}
+                      dangerouslySetInnerHTML={{ __html: translations[language].statusGreetings[currentLevel.level - 1].replace('{name}', `<span class="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 via-yellow-500 to-orange-500 font-bold animate-pulse">${displayName}</span>`) }}
+                    />
                   </div>
 
                   {/* 7-Day History */}
-                  <div className="bg-white/5 rounded-xl p-4">
+                  <div className={`rounded-3xl p-4 ${isDark ? 'bg-white/5' : 'bg-white/70 border border-slate-200'}`}
+                  >
                     <h4 className="font-semibold mb-3">{translations[language].sevenDayHistory}</h4>
                     <div className="grid grid-cols-7 gap-2">
                       {historyData.map((day, i) => (
                         <div key={i} className="text-center">
                           <div className="text-2xl">{day.icon}</div>
-                          <div className="text-xs text-gray-400">{day.day}</div>
+                          <div className={`text-xs ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{day.day}</div>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Recovery Status */}
-                  <div className="bg-white/5 rounded-xl p-4">
+                  <div className={`rounded-3xl p-4 ${isDark ? 'bg-white/5' : 'bg-white/70 border border-slate-200'}`}
+                  >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
                         <span className="text-2xl">🛡️</span>
                         <div>
                           <p className="font-semibold">{translations[language].weeklyRecovery}</p>
-                          <p className="text-sm text-gray-400">{translations[language].weeklyRecoveryDesc}</p>
+                          <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>{translations[language].weeklyRecoveryDesc}</p>
                         </div>
                       </div>
                       <span className={`px-3 py-1 rounded-full text-sm ${streakRecoveryAvailable ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}`}>
@@ -199,9 +225,10 @@ const StreakModal = ({ isOpen, onClose, streak, displayName, streakRecoveryAvail
                   </div>
 
                   {/* How It Works */}
-                  <div className="bg-white/5 rounded-xl p-4">
+                  <div className={`rounded-3xl p-4 ${isDark ? 'bg-white/5' : 'bg-white/70 border border-slate-200'}`}
+                  >
                     <h4 className="font-semibold mb-3">{translations[language].howItWorks}</h4>
-                    <ul className="space-y-2 text-sm text-gray-300">
+                    <ul className={`space-y-2 text-sm ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
                       {translations[language].howItWorksItems.map((item, i) => (
                         <li key={i}>• {item}</li>
                       ))}
@@ -222,10 +249,12 @@ const StreakModal = ({ isOpen, onClose, streak, displayName, streakRecoveryAvail
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className={`p-4 rounded-xl border transition-all ${
+                      className={`p-4 rounded-3xl border transition-all ${
                         currentLevel.level === index + 1
                           ? `${level.bg} shadow-lg`
-                          : 'bg-white/5 border-white/10'
+                          : isDark
+                            ? 'bg-white/5 border-white/10'
+                            : 'bg-white/70 border-slate-200'
                       }`}
                       style={currentLevel.level === index + 1 ? { borderColor: 'rgb(var(--accent-main) / 0.5)' } : {}}
                     >
@@ -234,9 +263,9 @@ const StreakModal = ({ isOpen, onClose, streak, displayName, streakRecoveryAvail
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
                             <h4 className={`font-bold ${level.color}`} style={currentLevel.level === index + 1 ? { color: 'rgb(var(--accent-main))' } : {}}>{level.name}</h4>
-                            <span className="text-sm text-gray-400">{level.range}</span>
+                            <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{level.range}</span>
                           </div>
-                          <p className="text-sm text-gray-300 mt-1 text-start">
+                          <p className={`text-sm mt-1 text-start ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
                             {translations[language].levelDescriptions[index]}
                           </p>
                         </div>

@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import ParticlesBackground from '../components/ParticlesBackground';
 import DashboardHeader from '../components/DashboardHeader/DashboardHeader';
@@ -30,7 +30,7 @@ const Dashboard = ({ user }) => {
   logger.debug('Dashboard', 'Rendering with user:', user?.id);
 
   // Theme hook
-  const { isDark, toggleTheme, theme } = useTheme();
+  const { isDark, setThemeMode: setAppThemeMode, syncAccent, theme } = useTheme();
 
   // Import hooks
   const { tasks, fetchTasks, addTask, updateTask, deleteTask } = useTasks(user);
@@ -67,6 +67,7 @@ const Dashboard = ({ user }) => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [timeFilter, setTimeFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Load user data on mount
   useEffect(() => {
@@ -85,8 +86,8 @@ const Dashboard = ({ user }) => {
     window.location.reload();
   };
 
-  const handleAddTask = async (title, emoji, timeslot) => {
-    await addTask(title, emoji, timeslot);
+  const handleAddTask = async (title, emoji, timeslot, category, priority) => {
+    await addTask(title, emoji, timeslot, category, priority);
   };
 
   const handleUpdateTask = async (taskId, updates) => {
@@ -113,9 +114,22 @@ const Dashboard = ({ user }) => {
   const safeNotificationsEnabled = notificationsEnabled !== undefined ? notificationsEnabled : DEFAULT_SETTINGS.notificationsEnabled;
   const safeAutoSaveInterval = autoSaveInterval || DEFAULT_SETTINGS.autoSaveInterval;
 
+  useEffect(() => {
+    setAppThemeMode(safeThemeMode);
+  }, [safeThemeMode, setAppThemeMode]);
+
+  useEffect(() => {
+    syncAccent();
+  }, [safeThemeColor, safeCustomColor, syncAccent]);
+
   // Filter tasks based on active filters
   const getFilteredTasks = () => {
     let filtered = tasks || [];
+
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    if (normalizedQuery) {
+      filtered = filtered.filter(t => (t.title || '').toLowerCase().includes(normalizedQuery));
+    }
 
     // Status filter
     if (statusFilter !== 'all') {
@@ -167,8 +181,8 @@ const Dashboard = ({ user }) => {
           backgroundColor: theme.background,
           color: theme.text,
           background: isDark
-            ? 'radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.08) 0%, #000000 100%)'
-            : 'linear-gradient(135deg, #ffffff 0%, #f3f7ff 50%, #e8f2ff 100%)'
+            ? 'radial-gradient(circle at bottom right, rgb(var(--accent-main) / 0.10) 0%, #000000 75%)'
+            : 'radial-gradient(circle at top left, rgb(var(--accent-main) / 0.10) 0%, transparent 55%), radial-gradient(circle at bottom right, rgb(var(--accent-main) / 0.08) 0%, transparent 45%), linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 45%, var(--bg-tertiary) 100%)'
         }}
       >
         <ParticlesBackground dimRed={true} themeColor={safeThemeColor} intense={true} />
@@ -192,10 +206,10 @@ const Dashboard = ({ user }) => {
           <div className="flex items-center justify-between mb-8 gap-4">
             {/* Add Task Button - Primary Action */}
             <motion.button
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setAddTaskModalOpen(true)}
-              className={`px-6 py-3 bg-gradient-to-r ${isDark ? 'from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 shadow-lg shadow-blue-500/40' : 'from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg shadow-blue-400/30'} rounded-lg text-white font-bold text-sm flex items-center gap-2.5 transition-all border border-blue-500/30 hover:border-blue-400/50`}
+              className="app-card-accent px-6 py-3 bg-gradient-to-r from-accent-main to-accent-dark hover:from-accent-light hover:to-accent-main text-white font-bold text-sm flex items-center gap-2.5 transition-all shadow-lg hover:shadow-xl hover:shadow-accent-main/25 border border-accent-subtle/30"
             >
               <Plus className="w-5 h-5" />
               Add Task
@@ -205,37 +219,37 @@ const Dashboard = ({ user }) => {
             <div className="flex items-center gap-3">
               {/* Analytics Toggle */}
               <motion.button
-                whileHover={{ scale: 1.08 }}
+                whileHover={{ scale: 1.08, y: -1 }}
                 whileTap={{ scale: 0.94 }}
                 onClick={() => setShowAnalytics(!showAnalytics)}
-                className={`px-4 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${
+                className={`app-card-slim px-4 py-2.5 text-sm font-bold transition-all flex items-center gap-2 ${
                   showAnalytics
-                    ? isDark ? 'bg-blue-500/25 border border-blue-500/60 text-blue-200 shadow-lg shadow-blue-500/20' : 'bg-blue-100 border border-blue-300 text-blue-700 shadow-lg shadow-blue-300/30'
-                    : isDark ? 'bg-gray-700/40 border border-gray-600/40 text-gray-300 hover:bg-gray-600/50 hover:border-gray-500/50' : 'bg-gray-200 border border-gray-300 text-gray-700 hover:bg-gray-300 hover:border-gray-400'
+                    ? 'bg-accent-main/10 border-accent-main/40 text-accent-main shadow-lg shadow-accent-main/20'
+                    : 'border-slate-200/60 dark:border-slate-600/30 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:border-slate-300 dark:hover:border-slate-500'
                 }`}
               >
-                <span className="text-lg">📊</span>
+                <span className="text-lg group-hover:scale-110 transition-transform">📊</span>
                 Analytics
               </motion.button>
 
               {/* Filter Toggle */}
               <motion.button
-                whileHover={{ scale: 1.08 }}
+                whileHover={{ scale: 1.08, y: -1 }}
                 whileTap={{ scale: 0.94 }}
                 onClick={() => setShowFilters(!showFilters)}
-                className={`px-4 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${
+                className={`app-card-slim px-4 py-2.5 text-sm font-bold transition-all flex items-center gap-2 ${
                   showFilters
-                    ? isDark ? 'bg-purple-500/25 border border-purple-500/60 text-purple-200 shadow-lg shadow-purple-500/20' : 'bg-purple-100 border border-purple-300 text-purple-700 shadow-lg shadow-purple-300/30'
-                    : isDark ? 'bg-gray-700/40 border border-gray-600/40 text-gray-300 hover:bg-gray-600/50 hover:border-gray-500/50' : 'bg-gray-200 border border-gray-300 text-gray-700 hover:bg-gray-300 hover:border-gray-400'
+                    ? 'bg-purple-500/10 border-purple-500/40 text-purple-600 dark:text-purple-400 shadow-lg shadow-purple-500/20'
+                    : 'border-slate-200/60 dark:border-slate-600/30 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:border-slate-300 dark:hover:border-slate-500'
                 }`}
               >
-                <span className="text-lg">🔍</span>
+                <span className="text-lg group-hover:scale-110 transition-transform">🔍</span>
                 Filters
               </motion.button>
             </div>
           </div>
 
-          {/* Filters Section - Professional Design */}
+          {/* Filters Section - Glass Premium */}
           <AnimatePresence>
             {showFilters && (
               <motion.div
@@ -243,13 +257,30 @@ const Dashboard = ({ user }) => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 0.2 }}
-                className={`mb-8 p-6 bg-gradient-to-br ${isDark ? 'from-purple-500/15 via-purple-600/10 to-indigo-600/10 border border-purple-500/40' : 'from-purple-100 via-purple-50 to-indigo-100 border border-purple-300'} rounded-2xl backdrop-blur-xl`}
+                className="mb-8 p-6 app-card bg-gradient-to-br from-accent-main/5 via-transparent to-accent-light/5 border-accent-subtle/30"
               >
+                <div className="mb-6">
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <span className="text-lg">🔎</span>
+                    <h4 className="text-sm font-bold text-accent-main">Search</h4>
+                  </div>
+                  <div className="app-card-slim flex items-center gap-3 px-4 py-3 border-accent-subtle/30">
+                    <Search className="w-4 h-4 text-accent-main" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder={safeLanguage === 'ar' ? 'ابحث عن مهمة...' : 'Search tasks...'}
+                      className="w-full bg-transparent outline-none text-sm font-semibold text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400"
+                    />
+                  </div>
+                </div>
+
                 {/* Status Filter */}
                 <div className="mb-6">
                   <div className="flex items-center gap-2.5 mb-3">
                     <span className="text-lg">🎯</span>
-                    <h4 className="text-sm font-bold text-purple-200">Task Status</h4>
+                    <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">Task Status</h4>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
                     {[
@@ -263,13 +294,13 @@ const Dashboard = ({ user }) => {
                         whileHover={{ scale: 1.05, y: -2 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setStatusFilter(item.value)}
-                        className={`px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                        className={`app-card-slim px-3.5 py-2.5 text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                           statusFilter === item.value
-                            ? 'bg-purple-500/35 border border-purple-400/70 text-purple-100 shadow-lg shadow-purple-500/30'
-                            : 'bg-purple-500/10 border border-purple-500/30 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400/50'
+                            ? 'bg-purple-500/15 border-purple-500/40 text-purple-700 dark:text-purple-300 shadow-lg shadow-purple-500/20'
+                            : 'border-slate-200/60 dark:border-slate-600/30 text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-500/10 hover:border-purple-300 dark:hover:border-purple-500/40'
                         }`}
                       >
-                        <span>{item.emoji}</span>
+                        <span className="group-hover:scale-110 transition-transform">{item.emoji}</span>
                         <span>{item.label}</span>
                       </motion.button>
                     ))}
@@ -280,7 +311,7 @@ const Dashboard = ({ user }) => {
                 <div className="mb-6">
                   <div className="flex items-center gap-2.5 mb-3">
                     <span className="text-lg">🏷️</span>
-                    <h4 className="text-sm font-bold text-blue-200">Categories</h4>
+                    <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">Categories</h4>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
                     {[
@@ -298,13 +329,13 @@ const Dashboard = ({ user }) => {
                         whileHover={{ scale: 1.05, y: -2 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setCategoryFilter(item.value)}
-                        className={`px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                        className={`app-card-slim px-3.5 py-2.5 text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                           categoryFilter === item.value
-                            ? 'bg-blue-500/35 border border-blue-400/70 text-blue-100 shadow-lg shadow-blue-500/30'
-                            : 'bg-blue-500/10 border border-blue-500/30 text-blue-300 hover:bg-blue-500/20 hover:border-blue-400/50'
+                            ? 'bg-blue-500/15 border-blue-500/40 text-blue-700 dark:text-blue-300 shadow-lg shadow-blue-500/20'
+                            : 'border-slate-200/60 dark:border-slate-600/30 text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 hover:border-blue-300 dark:hover:border-blue-500/40'
                         }`}
                       >
-                        <span>{item.emoji}</span>
+                        <span className="group-hover:scale-110 transition-transform">{item.emoji}</span>
                         <span>{item.label}</span>
                       </motion.button>
                     ))}
@@ -315,7 +346,7 @@ const Dashboard = ({ user }) => {
                 <div>
                   <div className="flex items-center gap-2.5 mb-3">
                     <span className="text-lg">⏰</span>
-                    <h4 className="text-sm font-bold text-amber-200">Time Slot</h4>
+                    <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">Time Slot</h4>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
                     {[
@@ -330,13 +361,13 @@ const Dashboard = ({ user }) => {
                         whileHover={{ scale: 1.05, y: -2 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setTimeFilter(item.value)}
-                        className={`px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                        className={`app-card-slim px-3.5 py-2.5 text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                           timeFilter === item.value
-                            ? 'bg-amber-500/35 border border-amber-400/70 text-amber-100 shadow-lg shadow-amber-500/30'
-                            : 'bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 hover:border-amber-400/50'
+                            ? 'bg-amber-500/15 border-amber-500/40 text-amber-700 dark:text-amber-300 shadow-lg shadow-amber-500/20'
+                            : 'border-slate-200/60 dark:border-slate-600/30 text-slate-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:border-amber-300 dark:hover:border-amber-500/40'
                         }`}
                       >
-                        <span>{item.emoji}</span>
+                        <span className="group-hover:scale-110 transition-transform">{item.emoji}</span>
                         <span>{item.label}</span>
                       </motion.button>
                     ))}
@@ -351,8 +382,9 @@ const Dashboard = ({ user }) => {
                     setStatusFilter('all');
                     setCategoryFilter('all');
                     setTimeFilter('all');
+                    setSearchQuery('');
                   }}
-                  className="mt-5 w-full px-4 py-2 rounded-lg bg-gray-700/50 hover:bg-gray-600/60 border border-gray-600/50 text-gray-300 hover:text-gray-100 text-xs font-bold transition-all"
+                  className="app-card-slim mt-5 w-full px-4 py-2 text-xs font-bold transition-all border-slate-200/60 dark:border-slate-600/30 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:border-slate-300 dark:hover:border-slate-500"
                 >
                   Clear All Filters
                 </motion.button>
@@ -382,13 +414,13 @@ const Dashboard = ({ user }) => {
             transition={{ duration: 0.3 }}
           >
             {/* Filter Info */}
-            {(statusFilter !== 'all' || categoryFilter !== 'all' || timeFilter !== 'all') && (
+            {(statusFilter !== 'all' || categoryFilter !== 'all' || timeFilter !== 'all' || searchQuery.trim()) && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`mb-4 p-3 rounded-lg ${isDark ? 'bg-blue-500/15 border border-blue-500/30' : 'bg-blue-100 border border-blue-300'} flex items-center justify-between`}
+                className="mb-4 p-3 app-card-slim bg-accent-main/5 border-accent-subtle/30 flex items-center justify-between"
               >
-                <span className={`text-sm font-medium ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>
+                <span className="text-sm font-medium text-accent-main">
                   Showing {filteredTasks.length} of {tasks?.length || 0} tasks
                 </span>
                 <motion.button
@@ -397,8 +429,9 @@ const Dashboard = ({ user }) => {
                     setStatusFilter('all');
                     setCategoryFilter('all');
                     setTimeFilter('all');
+                    setSearchQuery('');
                   }}
-                  className="text-xs font-bold text-blue-400 hover:text-blue-300 underline"
+                  className="text-xs font-bold text-accent-main hover:text-accent-dark underline"
                 >
                   Reset Filters
                 </motion.button>

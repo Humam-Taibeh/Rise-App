@@ -48,7 +48,11 @@ export const useSettings = (user) => {
             uiScale: settings.uiScale || DEFAULT_SETTINGS.uiScale,
             language: settings.language || DEFAULT_SETTINGS.language,
             themeColor: settings.themeColor || DEFAULT_SETTINGS.themeColor,
-            customColor: settings.customColor || DEFAULT_SETTINGS.customColor
+            customColor: settings.customColor || DEFAULT_SETTINGS.customColor,
+            themeMode: settings.themeMode || DEFAULT_SETTINGS.themeMode,
+            notificationsEnabled:
+              settings.notificationsEnabled !== undefined ? settings.notificationsEnabled : DEFAULT_SETTINGS.notificationsEnabled,
+            autoSaveInterval: settings.autoSaveInterval || DEFAULT_SETTINGS.autoSaveInterval
           };
 
           // Update state
@@ -57,6 +61,9 @@ export const useSettings = (user) => {
           setLanguage(settingsData.language);
           setThemeColor(settingsData.themeColor);
           setCustomColor(settingsData.customColor);
+          setThemeMode(settingsData.themeMode);
+          setNotificationsEnabled(settingsData.notificationsEnabled);
+          setAutoSaveInterval(settingsData.autoSaveInterval);
 
           // Sync to localStorage
           saveToStorage(settingsData);

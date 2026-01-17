@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../supabaseClient';
 import { Eye, EyeOff } from 'lucide-react';
@@ -16,10 +16,6 @@ const AuthSplit = () => {
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const { isDark, theme } = useTheme();
-
-  useEffect(() => {
-    document.documentElement.style.setProperty('--accent-main', '37 99 235');
-  }, []);
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -87,8 +83,8 @@ const AuthSplit = () => {
   const errorColor = isDark ? '#ff6b6b' : '#dc2626';
   const successColor = isDark ? '#51cf66' : '#059669';
   const getInputBorderColor = (focused) => {
-    if (focused) return isDark ? 'rgba(37, 99, 235, 0.9)' : 'rgba(37, 99, 235, 0.7)';
-    return isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(37, 99, 235, 0.25)';
+    if (focused) return isDark ? 'rgb(var(--accent-main) / 0.9)' : 'rgb(var(--accent-main) / 0.7)';
+    return isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgb(var(--accent-main) / 0.25)';
   };
 
   return (
@@ -99,8 +95,8 @@ const AuthSplit = () => {
         className="absolute inset-0 z-0 animate-gradient-flow bg-[length:200%_200%]"
         style={{
           background: isDark
-            ? 'linear-gradient(135deg, #000000, #001a4d, #0a1a3f)'
-            : 'linear-gradient(135deg, #ffffff, #f0f4ff, #e6f2ff)'
+            ? 'linear-gradient(135deg, #000000, rgb(var(--accent-dark) / 0.25), #0a0a0a)'
+            : 'linear-gradient(135deg, #ffffff, rgb(var(--accent-main) / 0.06), #f8fbff)'
         }}
       />
       <div className="absolute inset-0 z-0">
@@ -143,7 +139,7 @@ const AuthSplit = () => {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -15, scale: 0.95 }}
                   transition={{ duration: 0.4, type: 'spring', stiffness: 300, damping: 25 }}
-                  className="p-4 lg:p-5 rounded-xl lg:rounded-2xl text-sm lg:text-base text-center border-l-4 backdrop-blur-sm"
+                  className="p-4 lg:p-5 rounded-3xl lg:rounded-2xl text-sm lg:text-base text-center border-l-4 backdrop-blur-sm"
                   style={{
                     backgroundColor: isDark ? 'rgba(220, 38, 38, 0.15)' : 'rgba(220, 38, 38, 0.1)',
                     borderColor: errorColor
@@ -169,7 +165,7 @@ const AuthSplit = () => {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -15, scale: 0.95 }}
                   transition={{ duration: 0.4, type: 'spring', stiffness: 300, damping: 25 }}
-                  className="p-4 lg:p-5 rounded-xl lg:rounded-2xl text-sm lg:text-base text-center border-l-4 backdrop-blur-sm"
+                  className="p-4 lg:p-5 rounded-3xl lg:rounded-2xl text-sm lg:text-base text-center border-l-4 backdrop-blur-sm"
                   style={{
                     backgroundColor: isDark ? 'rgba(5, 150, 105, 0.15)' : 'rgba(5, 150, 105, 0.1)',
                     borderColor: successColor
@@ -352,7 +348,7 @@ const AuthSplit = () => {
                       onClick={() => { setIsSignUp(!isSignUp); setError(''); setSuccessMessage(''); }}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.98 }}
-                      className="font-bold transition-all hover:opacity-80 px-2 py-1 rounded-lg hover:bg-blue-500/10"
+                      className="font-bold transition-all hover:opacity-80 px-2 py-1 rounded-2xl hover:bg-blue-500/10"
                       style={{ color: theme.primary }}
                     >
                       {isSignUp ? 'Sign In' : 'Sign Up'}
@@ -366,7 +362,7 @@ const AuthSplit = () => {
                       onClick={handleResetPassword}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.98 }}
-                      className="font-bold transition-all hover:opacity-80 px-2 py-1 rounded-lg hover:bg-blue-500/10"
+                      className="font-bold transition-all hover:opacity-80 px-2 py-1 rounded-2xl hover:bg-blue-500/10"
                       style={{ color: theme.primary }}
                     >
                       Forgot password?
@@ -384,7 +380,7 @@ const AuthSplit = () => {
                 transition={{ duration: 0.5, delay: 0.25 }}
                 whileHover={!loading ? { scale: 1.03, y: -3 } : {}}
                 whileTap={!loading ? { scale: 0.97 } : {}}
-                className="group relative w-full flex justify-center py-4 lg:py-5 px-4 border border-transparent text-base lg:text-lg font-bold rounded-xl lg:rounded-2xl text-white transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="group relative w-full flex justify-center py-4 lg:py-5 px-4 border border-transparent text-base lg:text-lg font-bold rounded-3xl lg:rounded-2xl text-white transition-all duration-300 shadow-lg hover:shadow-xl"
                 style={{
                   background: !loading
                     ? `linear-gradient(135deg, ${theme.primary}, ${theme.primaryDark})`
@@ -398,7 +394,7 @@ const AuthSplit = () => {
                 }}
               >
                 <motion.div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-xl lg:rounded-2xl"
+                  className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-3xl lg:rounded-2xl"
                   animate={!loading ? { backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] } : {}}
                   transition={{ duration: 3, repeat: Infinity }}
                   style={{
@@ -455,7 +451,7 @@ const AuthSplit = () => {
                 transition={{ duration: 0.5, delay: 0.35 }}
                 whileHover={!loading ? { scale: 1.03, y: -2 } : {}}
                 whileTap={!loading ? { scale: 0.97 } : {}}
-                className="w-full flex items-center justify-center py-4 lg:py-5 px-4 border-2 rounded-xl lg:rounded-2xl transition-all duration-300 group font-bold hover:shadow-lg"
+                className="w-full flex items-center justify-center py-4 lg:py-5 px-4 border-2 rounded-3xl lg:rounded-2xl transition-all duration-300 group font-bold hover:shadow-lg"
                 style={{
                   borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(37, 99, 235, 0.3)',
                   backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(255, 255, 255, 0.9)',
@@ -524,7 +520,7 @@ const AuthSplit = () => {
               {['✓ Master Habits', '📊 Track Progress', '💪 Build Discipline'].map((item, i) => (
                 <motion.div
                   key={i}
-                  className="p-4 rounded-xl backdrop-blur-md border"
+                  className="p-4 rounded-3xl backdrop-blur-md border"
                   style={{
                     backgroundColor: isDark ? 'rgba(37, 99, 235, 0.1)' : 'rgba(37, 99, 235, 0.08)',
                     borderColor: isDark ? 'rgba(37, 99, 235, 0.3)' : 'rgba(37, 99, 235, 0.25)'

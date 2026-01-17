@@ -50,7 +50,7 @@ function AIQuotes({ language = 'en' }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass rounded-3xl p-8 mb-12 text-center"
+      className="glass rounded-2xl p-8 mb-12 text-center"
     >
       <p className="text-lg italic text-gray-300">"{quotes[language][currentQuote]}"</p>
     </motion.div>

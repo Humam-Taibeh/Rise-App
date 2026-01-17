@@ -84,7 +84,10 @@ export const getAllSettings = () => {
     uiScale: getFromStorage(STORAGE_KEYS.uiScale, DEFAULT_SETTINGS.uiScale),
     language: getFromStorage(STORAGE_KEYS.language, DEFAULT_SETTINGS.language),
     themeColor: getFromStorage(STORAGE_KEYS.themeColor, DEFAULT_SETTINGS.themeColor),
-    customColor: getFromStorage(STORAGE_KEYS.customColor, DEFAULT_SETTINGS.customColor)
+    customColor: getFromStorage(STORAGE_KEYS.customColor, DEFAULT_SETTINGS.customColor),
+    themeMode: getFromStorage(STORAGE_KEYS.themeMode, DEFAULT_SETTINGS.themeMode),
+    notificationsEnabled: getFromStorage(STORAGE_KEYS.notificationsEnabled, DEFAULT_SETTINGS.notificationsEnabled),
+    autoSaveInterval: getFromStorage(STORAGE_KEYS.autoSaveInterval, DEFAULT_SETTINGS.autoSaveInterval)
   };
 };
 

@@ -132,7 +132,10 @@ export const STORAGE_KEYS = {
   uiScale: 'uiScale',
   language: 'language',
   themeColor: 'themeColor',
-  customColor: 'customColor'
+  customColor: 'customColor',
+  themeMode: 'themeMode',
+  notificationsEnabled: 'notificationsEnabled',
+  autoSaveInterval: 'autoSaveInterval'
 };
 
 // ============================================================================

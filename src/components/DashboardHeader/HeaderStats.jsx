@@ -5,16 +5,19 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const HeaderStats = ({ progress = 0, streak = 0, currentLevel, onSettingsClick, onStreakClick, onPerformanceClick }) => {
+  const { isDark } = useTheme();
+
   return (
     <div className="justify-self-end">
       <div className="flex items-center gap-6">
         {/* Streak */}
         <motion.button
-          className="cursor-pointer flex flex-row items-center gap-2 transition-all duration-300 outline-none focus:outline-none focus:ring-2 focus:ring-orange-500 active:outline-none bg-transparent hover:bg-transparent border-none shadow-none"
+          className="app-card-slim cursor-pointer flex flex-row items-center gap-2 px-3 py-2 transition-all duration-300 outline-none focus:outline-none focus:ring-2 focus:ring-orange-500 active:outline-none hover:bg-orange-500/10 border border-transparent hover:border-orange-500/30"
           onClick={onStreakClick}
-          whileHover={{ scale: 1.1 }}
+          whileHover={{ scale: 1.05, y: -1 }}
           whileTap={{ scale: 0.95 }}
           aria-label={`Streak: ${streak} days`}
           title="Click to view streak hub"
@@ -22,19 +25,19 @@ const HeaderStats = ({ progress = 0, streak = 0, currentLevel, onSettingsClick, 
           <span className="text-2xl" aria-hidden="true">
             {currentLevel?.icon || '🔥'}
           </span>
-          <span className="text-sm font-bold font-mono">{streak}</span>
+          <span className="text-sm font-bold font-mono text-slate-900 dark:text-white">{streak}</span>
         </motion.button>
 
         {/* Settings */}
         <motion.button
-          whileHover={{ scale: 1.1 }}
+          whileHover={{ scale: 1.05, y: -1, rotate: 90 }}
           whileTap={{ scale: 0.95 }}
           onClick={onSettingsClick}
-          className="w-6 h-6 text-white transition-all duration-300 hover:rotate-90 outline-none focus:outline-none focus:ring-2 focus:ring-blue-500 active:outline-none bg-transparent hover:bg-transparent border-none shadow-none"
+          className="app-card-slim w-10 h-10 transition-all duration-300 outline-none focus:outline-none focus:ring-2 focus:ring-blue-500 active:outline-none hover:bg-blue-500/10 border border-transparent hover:border-blue-500/30 flex items-center justify-center"
           aria-label="Open settings"
           title="Settings"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-slate-900 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"

@@ -1,7 +1,7 @@
 /**
- * SettingsModal Component (Luxury Edition v8)
- * Premium design with advanced animations and beautiful interactions
- * Perfect blend of functionality, beauty, and professionalism
+ * SettingsModal Component (Enhanced v9)
+ * Unified theme design matching the entire application
+ * Premium design with consistent blue theme throughout
  */
 
 import React, { useState } from 'react';
@@ -39,15 +39,19 @@ const SettingsModal = ({
   const translations = TRANSLATIONS[language] || TRANSLATIONS.en;
   const [activeTab, setActiveTab] = useState('profile');
   const [hoveredTab, setHoveredTab] = useState(null);
-  const { isDark, toggleTheme, theme: contextTheme } = useTheme();
+  const { isDark, toggleTheme, setThemeMode: setAppThemeMode, syncAccent, theme: contextTheme } = useTheme();
   
-  // Create theme object for backward compatibility
+  // Create unified theme object matching application theme
   const theme = {
     text: contextTheme.text,
     textSecondary: contextTheme.textSecondary,
     textTertiary: contextTheme.textSecondary,
     input: isDark ? 'bg-gray-800/60 border border-gray-600/40' : 'bg-white border border-gray-300',
-    border: isDark ? 'border-blue-500/20' : 'border-blue-400/20'
+    border: isDark ? 'border-blue-500/20' : 'border-blue-400/20',
+    // Unified color palette based on application primary blue
+    primary: isDark ? 'from-blue-600 to-blue-700' : 'from-blue-500 to-blue-600',
+    primaryAccent: isDark ? 'bg-blue-500/25 border border-blue-500/60 text-blue-200 shadow-lg shadow-blue-500/20' : 'bg-blue-100 border border-blue-300 text-blue-700 shadow-lg shadow-blue-300/30',
+    primaryInactive: isDark ? 'bg-slate-800/40 border border-slate-700/50 text-slate-400 hover:bg-slate-800/60 hover:border-slate-600' : 'bg-slate-100/80 border border-slate-300 text-slate-700 hover:bg-slate-200/60 hover:border-slate-400'
   };
 
   const handleSave = async () => {
@@ -101,9 +105,15 @@ const SettingsModal = ({
     if (user) {
       await supabase.from(DB_TABLES.settings).update({ [column]: value }).eq('user_id', user.id);
     }
+
+    saveToStorage({ [column]: value });
+
+    if (column === 'themeColor' || column === 'customColor') {
+      syncAccent();
+    }
   };
 
-  const handleThemeModeChange = async (mode) => { setThemeMode(mode); await updateSetting('themeMode', mode); };
+  const handleThemeModeChange = async (mode) => { setThemeMode(mode); setAppThemeMode(mode); await updateSetting('themeMode', mode); };
   const handleNotificationsChange = async (enabled) => { setNotificationsEnabled(enabled); await updateSetting('notificationsEnabled', enabled); };
   const handleAutoSaveChange = async (interval) => { setAutoSaveInterval(interval); await updateSetting('autoSaveInterval', interval); };
   const handleLanguageChange = async (lang) => { setLanguage(lang); await updateSetting('language', lang); };
@@ -137,10 +147,10 @@ const SettingsModal = ({
   };
 
   const tabs = [
-    { id: 'profile', label: 'Profile', icon: '👤', color: 'from-purple-500 to-purple-600' },
-    { id: 'appearance', label: 'Theme', icon: '✨', color: 'from-indigo-500 to-indigo-600' },
+    { id: 'profile', label: 'Profile', icon: '👤', color: 'from-blue-500 to-blue-600' },
+    { id: 'appearance', label: 'Theme', icon: '✨', color: 'from-blue-500 to-blue-600' },
     { id: 'performance', label: 'Performance', icon: '⚡', color: 'from-blue-500 to-blue-600' },
-    { id: 'backup', label: 'Backup', icon: '💾', color: 'from-cyan-500 to-cyan-600' }
+    { id: 'backup', label: 'Backup', icon: '💾', color: 'from-blue-500 to-blue-600' }
   ];
 
   const tabVariants = {
@@ -168,28 +178,17 @@ const SettingsModal = ({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-            className="backdrop-blur-2xl border-2 rounded-3xl w-full max-w-2xl max-h-[84vh] overflow-hidden flex flex-col"
-            style={{
-              backgroundColor: isDark ? 'rgba(0, 0, 0, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-              borderColor: isDark ? 'rgba(37, 99, 235, 0.3)' : 'rgba(37, 99, 235, 0.2)',
-              boxShadow: isDark
-                ? '0 25px 80px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(37, 99, 235, 0.1), 0 0 40px rgba(37, 99, 235, 0.15)'
-                : '0 25px 60px rgba(37, 99, 235, 0.1), 0 0 2px rgba(37, 99, 235, 0.2)'
-            }}
-            dir={language === 'ar' ? 'rtl' : 'ltr'}
+            className="app-card-accent w-full max-w-2xl max-h-[84vh] overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Premium Header with Background Animation */}
             <motion.div
-              className="relative px-6 py-6 flex justify-between items-center border-b-2 overflow-hidden"
+              className="relative px-6 py-6 flex justify-between items-center border-b border-accent-subtle/30 overflow-hidden"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.4 }}
-              style={{
-                borderColor: isDark ? 'rgba(37, 99, 235, 0.2)' : 'rgba(37, 99, 235, 0.15)'
-              }}
             >
-              <motion.div className="absolute inset-0 opacity-15" animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }} transition={{ duration: 10, repeat: Infinity }} style={{ backgroundSize: '200% 200%', backgroundImage: `linear-gradient(135deg, ${isDark ? '#2563eb' : '#3b82f6'}, ${isDark ? '#1e40af' : '#60a5fa'}, ${isDark ? '#2563eb' : '#3b82f6'})` }} />
+              <motion.div className="absolute inset-0 opacity-10" animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }} transition={{ duration: 10, repeat: Infinity }} style={{ backgroundSize: '200% 200%', backgroundImage: 'linear-gradient(135deg, rgb(var(--accent-main)), rgb(var(--accent-light)), rgb(var(--accent-main)))' }} />
               
               <div className="flex items-center gap-3 relative z-10">
                 <motion.div
@@ -200,8 +199,8 @@ const SettingsModal = ({
                   ✨
                 </motion.div>
                 <div>
-                  <motion.h2 className={`text-2xl font-black ${theme.text} tracking-tight`} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>Settings</motion.h2>
-                  <motion.p className={`text-xs ${theme.textTertiary} font-bold mt-0.5 uppercase tracking-widest`} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>Personalize Your Experience</motion.p>
+                  <motion.h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>Settings</motion.h2>
+                  <motion.p className="text-xs text-slate-500 dark:text-slate-400 font-bold mt-0.5 uppercase tracking-widest" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>Personalize Your Experience</motion.p>
                 </div>
               </div>
               <div className="flex items-center gap-2 relative z-10">
@@ -211,7 +210,7 @@ const SettingsModal = ({
                   whileTap={{ scale: 0.9 }}
                   onClick={toggleTheme}
                   title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
-                  className={`text-lg p-2 rounded-lg transition-all border border-transparent hover:border-indigo-500/30 ${isDark ? 'hover:bg-indigo-500/30 text-yellow-400' : 'hover:bg-indigo-200/80 text-indigo-600'}`}
+                  className="app-card-slim text-lg p-2 rounded-lg transition-all hover:bg-accent-main/10 border border-transparent hover:border-accent-subtle/30 text-yellow-400 dark:text-yellow-400"
                 >
                   {isDark ? '☀️' : '🌙'}
                 </motion.button>
@@ -220,7 +219,7 @@ const SettingsModal = ({
                   whileHover={{ scale: 1.2, rotate: 90 }}
                   whileTap={{ scale: 0.85 }}
                   onClick={onClose}
-                  className={`text-xl ${theme.textSecondary} hover:${theme.text} ${themeMode === 'dark' ? 'hover:bg-indigo-500/30' : 'hover:bg-indigo-200/80'} p-2 rounded-lg transition-all flex-shrink-0 border border-transparent hover:border-indigo-500/30`}
+                  className="app-card-slim text-xl text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-2 rounded-lg transition-all flex-shrink-0 border border-transparent hover:border-accent-subtle/30"
                 >
                   ✕
                 </motion.button>
@@ -229,14 +228,10 @@ const SettingsModal = ({
 
             {/* Enhanced Tab Navigation */}
             <motion.div
-              className="flex border-b-2 gap-1.5 px-3 py-3"
+              className="flex border-b border-accent-subtle/30 gap-1.5 px-3 py-3 app-card-slim"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.15, duration: 0.4 }}
-              style={{
-                borderColor: isDark ? 'rgba(37, 99, 235, 0.2)' : 'rgba(37, 99, 235, 0.15)',
-                backgroundColor: isDark ? 'rgba(15, 23, 42, 0.5)' : 'rgba(243, 244, 246, 0.8)'
-              }}
             >
               {tabs.map((tab, idx) => (
                 <motion.button
@@ -249,12 +244,8 @@ const SettingsModal = ({
                   transition={{ delay: 0.15 + idx * 0.06 }}
                   className={`flex-1 relative px-2 py-3 rounded-xl font-bold transition-all group overflow-hidden border-2 ${
                     activeTab === tab.id
-                      ? themeMode === 'light'
-                        ? `border-indigo-400 bg-gradient-to-br from-indigo-100/80 to-indigo-50/60`
-                        : `border-indigo-500/60 bg-gradient-to-br from-indigo-500/25 to-indigo-400/15`
-                      : themeMode === 'light'
-                        ? 'border-slate-200 hover:border-indigo-300/60'
-                        : 'border-slate-700/30 hover:border-indigo-500/40'
+                      ? 'border-accent-main/50 bg-accent-main/10'
+                      : 'border-slate-200/60 dark:border-slate-600/30 hover:border-accent-subtle/40 hover:bg-accent-main/5'
                   }`}
                 >
                   {/* Background shimmer effect */}
@@ -276,8 +267,8 @@ const SettingsModal = ({
                     </motion.div>
                     <span className={`text-xs font-black uppercase tracking-widest ${
                       activeTab === tab.id
-                        ? themeMode === 'light' ? 'text-indigo-700' : 'text-indigo-300'
-                        : themeMode === 'light' ? 'text-slate-600' : 'text-slate-400'
+                        ? 'text-accent-main'
+                        : 'text-slate-600 dark:text-slate-400'
                     }`}>
                       {tab.label}
                     </span>
@@ -287,7 +278,7 @@ const SettingsModal = ({
                   {activeTab === tab.id && (
                     <motion.div
                       layoutId="indicator"
-                      className={`absolute inset-0 rounded-xl bg-gradient-to-r ${tab.color} opacity-0 blur-md`}
+                      className="absolute inset-0 rounded-xl bg-gradient-to-r from-accent-main/20 to-accent-light/20 blur-md"
                       animate={{ opacity: [0.1, 0.15, 0.1] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     />
@@ -297,7 +288,7 @@ const SettingsModal = ({
             </motion.div>
 
             {/* Content Area with Scroll Indicator */}
-            <div className="flex-1 overflow-y-auto relative group" style={{ height: '380px', backgroundColor: isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.8)' }}>
+            <div className="flex-1 overflow-y-auto relative group" style={{ height: '380px' }}>
               {/* Animated Scroll Indicator */}
               <motion.div
                 className={`absolute right-3 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-1.5`}
@@ -307,7 +298,7 @@ const SettingsModal = ({
                 {[0, 1, 2].map((i) => (
                   <motion.div
                     key={i}
-                    className={`w-1.5 h-1.5 rounded-full ${themeMode === 'light' ? 'bg-indigo-400/70' : 'bg-indigo-500/60'}`}
+                    className={`w-1.5 h-1.5 rounded-full bg-accent-main/60`}
                     animate={{ y: [0, 4, 0], opacity: [0.4, 0.9, 0.4] }}
                     transition={{ duration: 1.8, delay: i * 0.25, repeat: Infinity }}
                   />
@@ -319,39 +310,39 @@ const SettingsModal = ({
                   {activeTab === 'profile' && (
                     <motion.div key="profile" variants={tabVariants} initial="enter" animate="center" exit="exit" className="space-y-3.5">
                       {/* Profile Status Badge */}
-                      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className={`p-4 rounded-xl border-2 ${themeMode === 'light' ? 'bg-gradient-to-r from-emerald-100/60 to-emerald-50/40 border-emerald-300 shadow-md shadow-emerald-200/30' : 'bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 border-emerald-500/30 shadow-xl shadow-emerald-500/10'}`}>
+                      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="app-card p-4 bg-accent-main/5 border-accent-subtle/30">
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex items-center gap-2 flex-1">
                             <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.8, 1, 0.8] }} transition={{ duration: 2, repeat: Infinity }} className="text-sm flex-shrink-0">✓</motion.div>
                             <div className="min-w-0">
-                              <p className={`text-xs font-black uppercase tracking-widest ${theme.textTertiary}`}>Account Status</p>
-                              <p className={`text-xs ${theme.text} font-bold`}>Active & Synced</p>
+                              <p className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Account Status</p>
+                              <p className="text-xs text-slate-900 dark:text-white font-bold">Active & Synced</p>
                             </div>
                           </div>
-                          <motion.div animate={{ opacity: [0.6, 1, 0.6] }} transition={{ duration: 1.5, repeat: Infinity }} className={`text-xs font-bold px-2 py-1 rounded-lg flex-shrink-0 ${themeMode === 'light' ? 'bg-emerald-200/60 text-emerald-700' : 'bg-emerald-500/20 text-emerald-300'}`}>
+                          <motion.div animate={{ opacity: [0.6, 1, 0.6] }} transition={{ duration: 1.5, repeat: Infinity }} className="text-xs font-bold px-2 py-1 rounded-lg flex-shrink-0 bg-accent-main/20 text-accent-main">
                             Live
                           </motion.div>
                         </div>
                       </motion.div>
 
-                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className={`p-4 rounded-2xl border-2 ${theme.border} ${themeMode === 'dark' ? 'bg-gradient-to-br from-purple-500/15 to-purple-500/5 shadow-xl shadow-purple-500/10' : 'bg-gradient-to-br from-purple-100/60 to-purple-50/40 shadow-md shadow-purple-200/30'}`}>
-                        <label className={`text-xs font-black uppercase tracking-widest ${theme.textTertiary} mb-2 flex items-center gap-2`}>👤 Display Name</label>
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="app-card p-4 border-accent-subtle/30">
+                        <label className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">👤 Display Name</label>
                         <motion.input
                           whileFocus={{ scale: 1.02 }}
                           type="text"
                           value={userName}
                           onChange={(e) => setUserName(e.target.value)}
-                          className={`w-full ${theme.input} rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 ${themeMode === 'dark' ? 'focus:ring-purple-500/50 border-purple-500/40 shadow-lg shadow-purple-500/10' : 'focus:ring-purple-400/50 border-purple-300/60 shadow-md shadow-purple-200/20'} transition-all text-sm font-semibold border`}
+                          className={`w-full ${theme.input} rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 ${themeMode === 'dark' ? 'focus:ring-blue-500/50 border-blue-500/40 shadow-lg shadow-blue-500/10' : 'focus:ring-blue-400/50 border-blue-300/60 shadow-md shadow-blue-200/20'} transition-all text-sm font-semibold border`}
                           placeholder="Enter your name"
                         />
                         <p className={`text-xs ${theme.textTertiary} mt-2 font-medium opacity-75`}>Used in daily greetings & progress tracking</p>
                       </motion.div>
 
-                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className={`p-4 rounded-2xl border-2 ${theme.border} ${themeMode === 'dark' ? 'bg-gradient-to-br from-purple-500/15 to-purple-500/5 shadow-xl shadow-purple-500/10' : 'bg-gradient-to-br from-purple-100/60 to-purple-50/40 shadow-md shadow-purple-200/30'}`}>
-                        <label className={`text-xs font-black uppercase tracking-widest ${theme.textTertiary} mb-2.5 flex items-center gap-2`}>🌐 Language</label>
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="app-card p-4 border-accent-subtle/30">
+                        <label className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2.5 flex items-center gap-2">🌐 Language</label>
                         <div className="grid grid-cols-2 gap-2">
                           {[{ code: 'en', label: 'English', icon: '🇬🇧' }, { code: 'ar', label: 'العربية', icon: '🇸🇦' }].map((lang) => (
-                            <motion.button key={lang.code} whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }} onClick={() => handleLanguageChange(lang.code)} className={`px-3 py-2.5 rounded-lg font-bold text-xs border-2 transition-all flex items-center justify-center gap-2 ${language === lang.code ? themeMode === 'light' ? 'bg-gradient-to-r from-purple-200 to-purple-100 border-purple-500 text-purple-900 shadow-lg shadow-purple-300/50' : 'bg-gradient-to-r from-purple-500/40 to-purple-500/20 border-purple-500/70 text-purple-200 shadow-lg shadow-purple-500/25' : themeMode === 'light' ? 'bg-slate-100/80 border-slate-300 text-slate-700 hover:bg-slate-200/60 hover:border-slate-400' : 'bg-slate-800/40 border-slate-700/50 text-slate-400 hover:bg-slate-800/60 hover:border-slate-600'}`}>
+                            <motion.button key={lang.code} whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }} onClick={() => handleLanguageChange(lang.code)} className={`app-card-slim px-3 py-2.5 rounded-lg font-bold text-xs border-2 transition-all flex items-center justify-center gap-2 ${language === lang.code ? 'border-accent-main/50 bg-accent-main/10 text-accent-main' : 'border-slate-200/60 dark:border-slate-600/30 text-slate-700 dark:text-slate-300 hover:bg-accent-main/5 hover:border-accent-subtle/40'}`}>
                               <span className="text-base">{lang.icon}</span>
                               <span className="hidden sm:inline">{lang.label}</span>
                             </motion.button>
@@ -363,11 +354,11 @@ const SettingsModal = ({
 
                   {activeTab === 'appearance' && (
                     <motion.div key="appearance" variants={tabVariants} initial="enter" animate="center" exit="exit" className="space-y-3.5">
-                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className={`p-4 rounded-2xl border-2 ${theme.border} ${themeMode === 'dark' ? 'bg-gradient-to-br from-indigo-500/15 to-indigo-500/5 shadow-xl shadow-indigo-500/10' : 'bg-gradient-to-br from-indigo-100/60 to-indigo-50/40 shadow-md shadow-indigo-200/30'}`}>
-                        <label className={`text-xs font-black uppercase tracking-widest ${theme.textTertiary} mb-2.5 flex items-center gap-2`}>🌓 Theme Mode</label>
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="app-card p-4 border-accent-subtle/30">
+                        <label className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2.5 flex items-center gap-2">🌓 Theme Mode</label>
                         <div className="grid grid-cols-2 gap-2">
                           {[{ mode: 'dark', label: 'Dark', icon: '🌙' }, { mode: 'light', label: 'Light', icon: '☀️' }].map((item) => (
-                            <motion.button key={item.mode} whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }} onClick={() => handleThemeModeChange(item.mode)} className={`px-3 py-3 rounded-lg border-2 text-center transition-all ${themeMode === item.mode ? themeMode === 'light' ? 'bg-gradient-to-r from-indigo-200 to-indigo-100 border-indigo-500 text-indigo-900 shadow-lg shadow-indigo-300/50' : 'bg-gradient-to-r from-indigo-500/40 to-indigo-500/20 border-indigo-500/70 text-indigo-200 shadow-lg shadow-indigo-500/25' : themeMode === 'light' ? 'bg-slate-100/80 border-slate-300 text-slate-600 hover:bg-slate-200/60 hover:border-slate-400' : 'bg-slate-800/40 border-slate-700/50 text-slate-400 hover:bg-slate-800/60 hover:border-slate-600'}`}>
+                            <motion.button key={item.mode} whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }} onClick={() => handleThemeModeChange(item.mode)} className={`app-card-slim px-3 py-3 rounded-lg border-2 text-center transition-all ${themeMode === item.mode ? 'border-accent-main/50 bg-accent-main/10 text-accent-main' : 'border-slate-200/60 dark:border-slate-600/30 text-slate-700 dark:text-slate-300 hover:bg-accent-main/5 hover:border-accent-subtle/40'}`}>
                               <div className="text-lg">{item.icon}</div>
                               <div className="font-bold text-xs mt-0.5">{item.label}</div>
                             </motion.button>
@@ -379,11 +370,11 @@ const SettingsModal = ({
 
                   {activeTab === 'performance' && (
                     <motion.div key="performance" variants={tabVariants} initial="enter" animate="center" exit="exit" className="space-y-3.5">
-                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className={`p-4 rounded-2xl border-2 ${theme.border} ${themeMode === 'dark' ? 'bg-gradient-to-br from-blue-500/15 to-blue-500/5 shadow-xl shadow-blue-500/10' : 'bg-gradient-to-br from-blue-100/60 to-blue-50/40 shadow-md shadow-blue-200/30'}`}>
-                        <label className={`text-xs font-black uppercase tracking-widest ${theme.textTertiary} mb-2 flex items-center gap-2`}>📏 Size</label>
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="app-card p-4 border-accent-subtle/30">
+                        <label className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">📏 Size</label>
                         <div className="grid grid-cols-3 gap-2">
                           {[{ scale: 'small', label: 'Compact', icon: '📱' }, { scale: 'medium', label: 'Default', icon: '💻' }, { scale: 'large', label: 'Spacious', icon: '🖥️' }].map((item) => (
-                            <motion.button key={item.scale} whileHover={{ scale: 1.08, y: -2 }} whileTap={{ scale: 0.95 }} onClick={() => handleUiScaleChange(item.scale)} className={`px-2 py-2.5 rounded-lg font-bold text-xs border-2 transition-all text-center ${uiScale === item.scale ? themeMode === 'light' ? 'bg-gradient-to-r from-blue-200 to-blue-100 border-blue-500 text-blue-900 shadow-lg shadow-blue-300/50' : 'bg-gradient-to-r from-blue-500/40 to-blue-500/20 border-blue-500/70 text-blue-200 shadow-lg shadow-blue-500/25' : themeMode === 'light' ? 'bg-slate-100/80 border-slate-300 text-slate-700 hover:bg-slate-200/60 hover:border-slate-400' : 'bg-slate-800/40 border-slate-700/50 text-slate-400 hover:bg-slate-800/60 hover:border-slate-600'}`}>
+                            <motion.button key={item.scale} whileHover={{ scale: 1.08, y: -2 }} whileTap={{ scale: 0.95 }} onClick={() => handleUiScaleChange(item.scale)} className={`app-card-slim px-2 py-2.5 rounded-lg font-bold text-xs border-2 transition-all text-center ${uiScale === item.scale ? 'border-accent-main/50 bg-accent-main/10 text-accent-main' : 'border-slate-200/60 dark:border-slate-600/30 text-slate-700 dark:text-slate-300 hover:bg-accent-main/5 hover:border-accent-subtle/40'}`}>
                               <div className="text-sm">{item.icon}</div>
                               <div className="text-xs mt-0.5 font-black">{item.label}</div>
                             </motion.button>
@@ -391,11 +382,11 @@ const SettingsModal = ({
                         </div>
                       </motion.div>
 
-                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className={`p-4 rounded-2xl border-2 ${theme.border} ${themeMode === 'dark' ? 'bg-gradient-to-br from-blue-500/15 to-blue-500/5 shadow-xl shadow-blue-500/10' : 'bg-gradient-to-br from-blue-100/60 to-blue-50/40 shadow-md shadow-blue-200/30'}`}>
-                        <label className={`text-xs font-black uppercase tracking-widest ${theme.textTertiary} mb-2 flex items-center gap-2`}>🔔 Notifications</label>
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="app-card p-4 border-accent-subtle/30">
+                        <label className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">🔔 Notifications</label>
                         <div className="grid grid-cols-2 gap-2">
                           {[{ enabled: true, label: 'Enabled', icon: '✓' }, { enabled: false, label: 'Disabled', icon: '✕' }].map((item) => (
-                            <motion.button key={item.enabled ? 'on' : 'off'} whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }} onClick={() => handleNotificationsChange(item.enabled)} className={`px-2 py-2.5 rounded-lg font-bold text-xs border-2 transition-all text-center ${notificationsEnabled === item.enabled ? themeMode === 'light' ? 'bg-gradient-to-r from-blue-200 to-blue-100 border-blue-500 text-blue-900 shadow-lg shadow-blue-300/50' : 'bg-gradient-to-r from-blue-500/40 to-blue-500/20 border-blue-500/70 text-blue-200 shadow-lg shadow-blue-500/25' : themeMode === 'light' ? 'bg-slate-100/80 border-slate-300 text-slate-600 hover:bg-slate-200/60 hover:border-slate-400' : 'bg-slate-800/40 border-slate-700/50 text-slate-400 hover:bg-slate-800/60 hover:border-slate-600'}`}>
+                            <motion.button key={item.enabled ? 'on' : 'off'} whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }} onClick={() => handleNotificationsChange(item.enabled)} className={`app-card-slim px-2 py-2.5 rounded-lg font-bold text-xs border-2 transition-all text-center ${notificationsEnabled === item.enabled ? 'border-accent-main/50 bg-accent-main/10 text-accent-main' : 'border-slate-200/60 dark:border-slate-600/30 text-slate-700 dark:text-slate-300 hover:bg-accent-main/5 hover:border-accent-subtle/40'}`}>
                               <div className="text-sm">{item.icon}</div>
                               <div className="font-bold text-xs mt-0.5">{item.label}</div>
                             </motion.button>
@@ -403,11 +394,11 @@ const SettingsModal = ({
                         </div>
                       </motion.div>
 
-                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className={`p-4 rounded-2xl border-2 ${theme.border} ${themeMode === 'dark' ? 'bg-gradient-to-br from-blue-500/15 to-blue-500/5 shadow-xl shadow-blue-500/10' : 'bg-gradient-to-br from-blue-100/60 to-blue-50/40 shadow-md shadow-blue-200/30'}`}>
-                        <label className={`text-xs font-black uppercase tracking-widest ${theme.textTertiary} mb-2 flex items-center gap-2`}>⏱️ Auto-Save</label>
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="app-card p-4 border-accent-subtle/30">
+                        <label className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">⏱️ Auto-Save</label>
                         <div className="grid grid-cols-3 gap-2">
                           {[{ interval: 15, label: 'Fast', icon: '⚡', time: '15s' }, { interval: 30, label: 'Normal', icon: '✓', time: '30s' }, { interval: 60, label: 'Eco', icon: '🔋', time: '60s' }].map((item) => (
-                            <motion.button key={item.interval} whileHover={{ scale: 1.08, y: -2 }} whileTap={{ scale: 0.95 }} onClick={() => handleAutoSaveChange(item.interval)} className={`px-2 py-2.5 rounded-lg font-bold text-xs border-2 transition-all text-center ${autoSaveInterval === item.interval ? themeMode === 'light' ? 'bg-gradient-to-r from-blue-200 to-blue-100 border-blue-500 text-blue-900 shadow-lg shadow-blue-300/50' : 'bg-gradient-to-r from-blue-500/40 to-blue-500/20 border-blue-500/70 text-blue-200 shadow-lg shadow-blue-500/25' : themeMode === 'light' ? 'bg-slate-100/80 border-slate-300 text-slate-700 hover:bg-slate-200/60 hover:border-slate-400' : 'bg-slate-800/40 border-slate-700/50 text-slate-400 hover:bg-slate-800/60 hover:border-slate-600'}`}>
+                            <motion.button key={item.interval} whileHover={{ scale: 1.08, y: -2 }} whileTap={{ scale: 0.95 }} onClick={() => handleAutoSaveChange(item.interval)} className={`app-card-slim px-2 py-2.5 rounded-lg font-bold text-xs border-2 transition-all text-center ${autoSaveInterval === item.interval ? 'border-accent-main/50 bg-accent-main/10 text-accent-main' : 'border-slate-200/60 dark:border-slate-600/30 text-slate-700 dark:text-slate-300 hover:bg-accent-main/5 hover:border-accent-subtle/40'}`}>
                               <div className="text-sm">{item.icon}</div>
                               <div className="font-bold text-xs mt-0.5">{item.label}</div>
                               <div className="text-xs mt-0.5 opacity-70">{item.time}</div>
@@ -420,22 +411,22 @@ const SettingsModal = ({
 
                   {activeTab === 'backup' && (
                     <motion.div key="backup" variants={tabVariants} initial="enter" animate="center" exit="exit" className="space-y-3.5">
-                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className={`p-4 rounded-2xl border-2 ${themeMode === 'light' ? 'bg-gradient-to-br from-blue-100/60 to-blue-50/40 border-blue-300 shadow-md shadow-blue-200/30' : 'bg-gradient-to-br from-blue-500/15 to-blue-500/5 border-blue-500/30 shadow-xl shadow-blue-500/10'}`}>
-                        <h3 className={`text-xs font-black uppercase tracking-widest ${theme.text} mb-2 flex items-center gap-2`}>📥 Export Data</h3>
-                        <p className={`text-xs ${theme.textTertiary} mb-3 font-medium opacity-75`}>Download settings backup</p>
-                        <motion.button whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }} onClick={handleDataExport} className={`w-full px-3 py-2.5 rounded-lg font-bold text-xs transition-all border-2 ${themeMode === 'light' ? 'bg-gradient-to-r from-blue-200 to-blue-100 border-blue-500 text-blue-900 hover:bg-blue-300/70 shadow-lg shadow-blue-300/40' : 'bg-gradient-to-r from-blue-500/30 to-blue-500/15 border-blue-500/60 text-blue-200 hover:bg-blue-500/40 shadow-lg shadow-blue-500/20'}`}>
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="app-card p-4 bg-accent-main/5 border-accent-subtle/30">
+                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">📥 Export Data</h3>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mb-3 font-medium opacity-75">Download settings backup</p>
+                        <motion.button whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }} onClick={handleDataExport} className="app-card-accent w-full px-3 py-2.5 rounded-lg font-bold text-xs transition-all">
                           ⬇️ Download
                         </motion.button>
                       </motion.div>
 
-                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className={`p-4 rounded-2xl border-2 ${themeMode === 'light' ? 'bg-gradient-to-br from-slate-100/60 to-slate-50/40 border-slate-300 shadow-md shadow-slate-200/30' : 'bg-gradient-to-br from-slate-700/15 to-slate-700/5 border-slate-600/30 shadow-xl shadow-slate-700/10'}`}>
-                        <h3 className={`text-xs font-black uppercase tracking-widest ${theme.text} mb-1 flex items-center gap-2`}>☁️ Cloud Sync</h3>
-                        <p className={`text-xs ${theme.textTertiary} font-medium opacity-75`}>Auto-synced across devices</p>
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="app-card p-4 border-slate-200/60 dark:border-slate-600/30">
+                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-2">☁️ Cloud Sync</h3>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 font-medium opacity-75">Auto-synced across devices</p>
                       </motion.div>
 
-                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className={`p-4 rounded-2xl border-2 ${themeMode === 'light' ? 'bg-gradient-to-br from-indigo-100/60 to-indigo-50/40 border-indigo-300 shadow-md shadow-indigo-200/30' : 'bg-gradient-to-br from-indigo-500/15 to-indigo-500/5 border-indigo-500/30 shadow-xl shadow-indigo-500/10'}`}>
-                        <h3 className={`text-xs font-black uppercase tracking-widest ${theme.text} mb-1 flex items-center gap-2`}>🔐 Security</h3>
-                        <p className={`text-xs ${theme.textTertiary} font-medium opacity-75`}>End-to-end encrypted</p>
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="app-card p-4 bg-accent-main/5 border-accent-subtle/30">
+                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-2">🔐 Security</h3>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 font-medium opacity-75">End-to-end encrypted</p>
                       </motion.div>
                     </motion.div>
                   )}
@@ -445,65 +436,55 @@ const SettingsModal = ({
 
             {/* Settings Preview Card */}
             <motion.div
-              className="border-t-2 px-6 py-3 grid grid-cols-3 gap-2 text-center"
+              className="border-t border-accent-subtle/30 px-6 py-3 grid grid-cols-3 gap-2 text-center app-card-slim"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.25, duration: 0.4 }}
-              style={{
-                borderColor: isDark ? 'rgba(37, 99, 235, 0.2)' : 'rgba(37, 99, 235, 0.15)',
-                backgroundColor: isDark ? 'rgba(15, 23, 42, 0.6)' : 'rgba(243, 244, 246, 0.6)'
-              }}
             >
               <motion.div
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
                 whileHover={{ y: -2 }}
-                className={`p-3 rounded-lg transition-all border border-transparent hover:border-indigo-400/50 ${themeMode === 'dark' ? 'bg-indigo-500/15' : 'bg-indigo-100/60'}`}
+                className="p-3 rounded-lg transition-all border border-transparent hover:border-accent-subtle/40 bg-accent-main/5"
               >
                 <div className="text-lg">🌓</div>
-                <p className={`text-xs font-bold mt-1 ${theme.textTertiary}`}>{themeMode === 'dark' ? 'Dark' : 'Light'}</p>
+                <p className="text-xs font-bold mt-1 text-slate-500 dark:text-slate-400">{themeMode === 'dark' ? 'Dark' : 'Light'}</p>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35 }}
                 whileHover={{ y: -2 }}
-                className={`p-3 rounded-lg transition-all border border-transparent hover:border-blue-400/50 ${themeMode === 'dark' ? 'bg-blue-500/15' : 'bg-blue-100/60'}`}
+                className="p-3 rounded-lg transition-all border border-transparent hover:border-accent-subtle/40 bg-accent-main/5"
               >
                 <div className="text-lg">🔔</div>
-                <p className={`text-xs font-bold mt-1 ${theme.textTertiary}`}>{notificationsEnabled ? 'On' : 'Off'}</p>
+                <p className="text-xs font-bold mt-1 text-slate-500 dark:text-slate-400">{notificationsEnabled ? 'On' : 'Off'}</p>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
                 whileHover={{ y: -2 }}
-                className={`p-3 rounded-lg transition-all border border-transparent hover:border-purple-400/50 ${themeMode === 'dark' ? 'bg-purple-500/15' : 'bg-purple-100/60'}`}
+                className="p-3 rounded-lg transition-all border border-transparent hover:border-accent-subtle/40 bg-accent-main/5"
               >
                 <div className="text-lg">🌐</div>
-                <p className={`text-xs font-bold mt-1 ${theme.textTertiary}`}>{language === 'en' ? 'English' : 'العربية'}</p>
+                <p className="text-xs font-bold mt-1 text-slate-500 dark:text-slate-400">{language === 'en' ? 'English' : 'العربية'}</p>
               </motion.div>
             </motion.div>
 
             {/* Premium Footer */}
             <motion.div
-              className="border-t-2 px-6 py-4 flex gap-2"
+              className="border-t border-accent-subtle/30 px-6 py-4 flex gap-2 app-card-slim"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.4 }}
-              style={{
-                borderColor: isDark ? 'rgba(37, 99, 235, 0.2)' : 'rgba(37, 99, 235, 0.15)',
-                background: isDark
-                  ? 'linear-gradient(to right, rgba(15, 23, 42, 0.6), rgba(30, 41, 59, 0.4))'
-                  : 'linear-gradient(to right, rgba(243, 244, 246, 0.8), rgba(249, 250, 251, 0.6))'
-              }}
             >
               <motion.button
-                whileHover={{ scale: 1.03, y: -3, boxShadow: '0 10px 25px rgba(79, 70, 229, 0.3)' }}
+                whileHover={{ scale: 1.03, y: -3, boxShadow: '0 10px 25px rgba(37, 99, 235, 0.3)' }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleSave}
-                className={`flex-1 px-3 py-2.5 rounded-lg font-bold text-xs transition-all shadow-lg border-2 border-transparent ${themeMode === 'light' ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white hover:from-indigo-600 hover:to-indigo-700' : 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white hover:from-indigo-700 hover:to-indigo-800'}`}
+                className="app-card-accent flex-1 px-3 py-2.5 rounded-lg font-bold text-xs transition-all shadow-lg border-2 border-transparent"
               >
                 ✓ Save
               </motion.button>
@@ -511,7 +492,7 @@ const SettingsModal = ({
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleReset}
-                className={`px-3 py-2.5 rounded-lg font-bold text-xs transition-all border-2 shadow-lg ${themeMode === 'light' ? 'bg-blue-100 border-blue-400 text-blue-900 hover:bg-blue-200/80 hover:border-blue-500' : 'bg-blue-500/20 border-blue-500/60 text-blue-200 hover:bg-blue-500/30'}`}
+                className="app-card-slim px-3 py-2.5 rounded-lg font-bold text-xs transition-all border-2 shadow-lg border-accent-subtle/30 text-accent-main hover:bg-accent-main/5"
               >
                 ↺ Reset
               </motion.button>
@@ -519,7 +500,7 @@ const SettingsModal = ({
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onLogout}
-                className={`px-3 py-2.5 rounded-lg font-bold text-xs transition-all border-2 shadow-lg ${themeMode === 'light' ? 'bg-slate-200 border-slate-400 text-slate-900 hover:bg-slate-300/80 hover:border-slate-500' : 'bg-slate-700/40 border-slate-600/60 text-slate-200 hover:bg-slate-700/60'}`}
+                className="app-card-slim px-3 py-2.5 rounded-lg font-bold text-xs transition-all border-2 shadow-lg border-slate-200/60 dark:border-slate-600/30 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
               >
                 🚪 Logout
               </motion.button>
