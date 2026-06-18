@@ -1,8 +1,13 @@
 # 🚀 Rise: AI-Assisted Productivity Platform
 
-### 🔗 [Live Deployment Demo]([https://rise-app-three.vercel.app/](https://risee-ai.vercel.app/)) | ⚡ Powered by React & Supabase
+### 🔗 [Live Deployment Demo](https://rise-app-three.vercel.app/) | ⚡ Powered by React & Supabase
 
 A high-performance web platform engineered to optimize daily workflows, tasks, and data state management. Developed and accelerated utilizing advanced GenAI development workflows.
+
+---
+
+## 📸 Interface & Preview
+<img src="https://github.com/user-attachments/assets/6ca17683-feae-48eb-8a8a-f65c81d215a3" width="100%" alt="Rise Application Interface" />
 
 ---
 
